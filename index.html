@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FireApp · Gestor de productos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="main.css">
+  <script src="app/main.js" type="module"></script>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg app-nav">
+    <div class="container">
+      <a class="navbar-brand" href="#">FireApp</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><span class="nav-link logged-in" id="user-label"></span></li>
+          <li class="nav-item"><a class="nav-link logged-out" href="#" data-bs-target="#singin-modal" data-bs-toggle="modal">Iniciar sesión</a></li>
+          <li class="nav-item"><a class="nav-link logged-out" href="#" data-bs-target="#singup-modal" data-bs-toggle="modal">Registrarse</a></li>
+          <li class="nav-item"><a class="nav-link logged-in" href="#" id="logout">Cerrar sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- INICIO (solo sin sesión) -->
+  <header class="hero logged-out">
+    <div class="container hero-grid">
+      <div>
+        <h1>Tu inventario, en orden y a la mano.</h1>
+        <p class="lead">Registra tus productos con fotos, precio y existencias. Cada cuenta ve solo lo suyo.</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-accent btn-lg" data-bs-target="#singup-modal" data-bs-toggle="modal">Crear cuenta</button>
+          <button class="btn btn-outline-light btn-lg" data-bs-target="#singin-modal" data-bs-toggle="modal">Ya tengo cuenta</button>
+        </div>
+      </div>
+      <div class="hero-card" aria-hidden="true">
+        <div class="hero-img"></div>
+        <span class="chip">Hogar</span>
+        <h3>Lámpara de cerámica</h3>
+        <div class="meta"><strong class="price">$349.00</strong><span>12 en existencia</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MÓDULO DE PRODUCTOS (solo con sesión) -->
+  <main class="container products logged-in" id="products-module">
+    <div class="products-head">
+      <div>
+        <h2>Mis productos <span class="count" id="product-count">0</span></h2>
+        <p class="muted mb-0">Solo tú puedes ver y administrar estos productos.</p>
+      </div>
+      <button class="btn btn-accent" id="new-product">Nuevo producto</button>
+    </div>
+    <div id="product-grid" class="product-grid"></div>
+  </main>
+
+  <footer class="footer container"><small>FireApp · Firebase Auth, Firestore y Hosting</small></footer>
+
+  <!-- MODAL: PRODUCTO -->
+  <div class="modal fade" id="product-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <form class="modal-content" id="product-form">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="product-modal-title">Nuevo producto</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body row g-3">
+          <div class="col-md-8"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" required maxlength="80"></div>
+          <div class="col-md-4"><label class="form-label" for="categoria">Categoría</label>
+            <select class="form-select" id="categoria" name="categoria" required>
+              <option value="">Elegir…</option><option>Electrónica</option><option>Hogar</option><option>Ropa</option><option>Alimentos</option><option>Juguetes</option><option>Otros</option>
+            </select></div>
+          <div class="col-12"><label class="form-label" for="descripcion">Descripción</label><textarea class="form-control" id="descripcion" name="descripcion" rows="3" required maxlength="500"></textarea></div>
+          <div class="col-6"><label class="form-label" for="precio">Precio (MXN)</label><input class="form-control" type="number" id="precio" name="precio" min="0" step="0.01" required></div>
+          <div class="col-6"><label class="form-label" for="existencias">Existencias</label><input class="form-control" type="number" id="existencias" name="existencias" min="0" step="1" required></div>
+          <div class="col-12">
+            <div class="d-flex justify-content-between"><label class="form-label" for="product-images">Imágenes (de 1 a 5)</label><small class="muted" id="image-counter">0 / 5 imágenes</small></div>
+            <input class="form-control" type="file" id="product-images" accept="image/*" multiple>
+            <div class="alert alert-danger py-2 mt-2 mb-0" id="image-error" style="display:none" role="alert"></div>
+            <div class="preview" id="image-preview"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-accent" id="product-save">Guardar producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SIGN IN -->
+  <div class="modal fade" id="singin-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5">Iniciar sesión</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body">
+        <form id="login-form" onsubmit="return false;">
+          <label for="email" class="form-label">Correo</label>
+          <input type="email" name="email" id="email" class="form-control mb-3" placeholder="tu@correo.com" required>
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" name="password" id="password" class="form-control mb-3" placeholder="******" required>
+          <button type="submit" class="btn btn-accent w-100 mb-3">Entrar</button>
+        </form>
+        <div class="providers">
+          <button type="button" id="google-login" class="btn btn-outline-light w-100 mb-2">Continuar con Google</button>
+          <button type="button" id="facebook-login" class="btn btn-outline-light w-100 mb-2">Continuar con Facebook</button>
+          <button type="button" id="github-login" class="btn btn-outline-light w-100 mb-2">Continuar con GitHub</button>
+          <button type="button" id="microsoft-login" class="btn btn-outline-light w-100">Continuar con Microsoft</button>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- MODAL: SIGN UP -->
+  <div class="modal fade" id="singup-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5">Crear cuenta</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+      <div class="modal-body">
+        <form id="signup-form" onsubmit="return false;">
+          <label for="signup-email" class="form-label">Correo</label>
+          <input type="email" name="email" id="signup-email" class="form-control mb-3" placeholder="tu@correo.com" required>
+          <label for="signup-password" class="form-label">Contraseña (mínimo 6 caracteres)</label>
+          <input type="password" name="password" id="signup-password" class="form-control mb-3" placeholder="******" required>
+          <button type="submit" class="btn btn-accent w-100">Registrarme</button>
+        </form>
+      </div>
+    </div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
